@@ -3,9 +3,9 @@ from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
 import pandas as pd
 
-class Scrapy:
+class Crawler:
     
-    def find_linkedin_urls(self, company_names_file, output_file):
+    def get_linkedin_urls(self, company_names_file, linkedin_urls_file):
         # Read the company names from the CSV file
         company_names = pd.read_csv(company_names_file)['Company Name']
 
@@ -41,7 +41,7 @@ class Scrapy:
                 output_data.append([company_name, linkedin_url])
 
             # Save the LinkedIn URLs to the output CSV file
-            with open(output_file, 'w', newline='') as file:
+            with open(linkedin_urls_file, 'w', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerows(output_data)
 
@@ -66,9 +66,9 @@ class Scrapy:
                     pass
         return employee_count
 
-    def update_employee_count(self, company_names_file, output_file):
+    def update_employee_count(self, company_names_file, linkedin_urls_file):
         # Read the LinkedIn URLs from the CSV file
-        df = pd.read_csv(output_file)
+        df = pd.read_csv(linkedin_urls_file)
 
         # Add a new column for the employee count
         df['Employee Count'] = ''
@@ -86,8 +86,10 @@ class Scrapy:
             # Extract the employee count from LinkedIn
             employee_count = self.get_employee_count(linkedin_url)
             df.at[index, 'Employee Count'] = employee_count
+            
 
+        df = df.drop(columns=['LinkedIn URL'])
         # Save the updated data to the output file
-        df.to_csv(output_file.name, index=False)
+        df.to_csv(company_names_file.name, index=False)
             
            

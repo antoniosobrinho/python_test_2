@@ -1,36 +1,38 @@
 from flask import Flask, request, jsonify, send_file
-from scrapy import Scrapy
+from crawler import Crawler
 
 app = Flask(__name__)
 
-@app.route('/process_csv', methods=['POST'])
-def process_csv():
-    # Verificar se o arquivo CSV foi enviado na requisição
+@app.route('/crawler_linkedin', methods=['POST'])
+def crawler_linkedin():
+    
+    # Check if the CSV file was sent in the request
     if 'companies_file' not in request.files:
-        return jsonify({'error': 'Nenhum arquivo enviado'})
+        return jsonify({'error': 'No files uploaded'})
 
     companies_file = request.files['companies_file']
 
-    # Verificar se o arquivo tem uma extensão CSV
+    # Check if the file has a CSV extension
     if not companies_file.filename.endswith('.csv'):
-        return jsonify({'error': 'Arquivo deve ser do tipo CSV'})
+        return jsonify({'error': 'File must be of type CSV'})
 
-    output_file_name = 'output_file.csv'
-    # Ler o arquivo CSV
+    linkedin_urls_file_name = 'linkedin_urls.csv'
+    #Read the CSV file
     try:
-        scrapy = Scrapy()
+        crawler = Crawler()
 
-        scrapy.find_linkedin_urls(companies_file, output_file_name)
+        crawler.get_linkedin_urls(companies_file, linkedin_urls_file_name)
 
-        output_file = open(output_file_name)
+        linkedin_urls_file = open(linkedin_urls_file_name)
 
-        scrapy.update_employee_count(companies_file, output_file)
+        crawler.update_employee_count(companies_file, linkedin_urls_file)
+
     except Exception as e:
-        return jsonify({'error': f'Erro ao ler o arquivo CSV: {str(e)}'})
+        return jsonify({'error': f'Error reading CSV file: {str(e)}'})
     
 
     # Retornar o arquivo CSV de saída
-    return send_file(output_file.name, as_attachment=True)
+    return send_file(companies_file.name, as_attachment=True)
 
 if __name__ == '__main__':
     app.run()
