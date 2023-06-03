@@ -9,11 +9,14 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
 
-
 # Install pip requirements
 COPY requirements.txt .
 RUN python -m pip install -r requirements.txt
-RUN playwright install
+
+# Install necessary dependencies
+RUN apt-get update
+
+RUN playwright install chromium
 RUN playwright install-deps
 
 WORKDIR /app
