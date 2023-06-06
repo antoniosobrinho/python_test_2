@@ -45,28 +45,26 @@ class Crawler:
                 writer = csv.writer(file)
                 writer.writerows(output_data)
 
+            self.update_employee_count(company_names_file, linkedin_urls_file, browser)
             # Close the browser
             browser.close()
 
-    def get_employee_count(self, linkedin_url):
+    def get_employee_count(self, linkedin_url, browser):
         
-        with sync_playwright() as p:
-
-            browser = p.chromium.launch()
-            page =  browser.new_page()
-            page.goto(linkedin_url)
-            employee_text =  page.inner_text('.self-center.link-no-visited-state')
-            browser.close()
-            
-            employee_text = employee_text.split(' ')
-            for word in employee_text:
-                try:
-                    employee_count = int(word)
-                except:
-                    pass
+       
+        page =  browser.new_page()
+        page.goto(linkedin_url)
+        employee_text =  page.inner_text('.self-center.link-no-visited-state')
+        
+        employee_text = employee_text.split(' ')
+        for word in employee_text:
+            try:
+                employee_count = int(word)
+            except:
+                pass
         return employee_count
 
-    def update_employee_count(self, company_names_file, linkedin_urls_file):
+    def update_employee_count(self, company_names_file, linkedin_urls_file, browser):
         # Read the LinkedIn URLs from the CSV file
         df = pd.read_csv(linkedin_urls_file)
 
@@ -84,7 +82,7 @@ class Crawler:
                 continue
 
             # Extract the employee count from LinkedIn
-            employee_count = self.get_employee_count(linkedin_url)
+            employee_count = self.get_employee_count(linkedin_url, browser)
             df.at[index, 'Employee Count'] = employee_count
             
 

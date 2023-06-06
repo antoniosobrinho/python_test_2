@@ -23,10 +23,6 @@ def crawler_linkedin():
 
         crawler.get_linkedin_urls(companies_file, linkedin_urls_file_name)
 
-        linkedin_urls_file = open(linkedin_urls_file_name)
-
-        crawler.update_employee_count(companies_file, linkedin_urls_file)
-
     except Exception as e:
         return jsonify({'error': f'Error reading CSV file: {str(e)}'})
     
